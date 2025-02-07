@@ -20,10 +20,10 @@ jobs:
       - name: Run Self-Healing Action
         uses: willdafoe/openai.gpt.github-action@main
         with:
-          debug_only: false
-          enable_rollback: true
+          debug_only: true
+          enable_rollback: false
           retry_count: 3
-          auto_merge: true
+          auto_merge: false
           iac_tool: "auto"
           openai_api_key: ${{ env.OPENAI_API_KEY }}  # ✅ Ensure this exists
           github_token: ${{ secrets.GITHUB_TOKEN }}      # ✅ Use built-in GitHub token
