@@ -10,4 +10,4 @@ COPY . /app
 RUN pip install --no-cache-dir -r requirements.txt
 
 # Set entry point to run Python script
-CMD ["python", "-m", "src.self_healing"]
+CMD ["python", "src/self_healing.py"]

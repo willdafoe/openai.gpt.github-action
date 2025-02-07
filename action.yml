@@ -35,7 +35,3 @@ inputs:
 runs:
   using: "docker"
   image: "Dockerfile"
-  args:
-    - "python"
-    - "-m"
-    - "src.self_healing"  # Use module notation instead of direct file path
