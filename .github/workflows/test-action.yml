@@ -1,20 +1,25 @@
-name: Test Self-Healing Action
+name: Self-Healing Test
 
 on:
   push:
     branches:
       - main
+      - dev
 
 jobs:
-  test:
+  test_self_healing:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout Code
+      - name: Checkout this repository
         uses: actions/checkout@v4
 
-      - name: Self-Healing Action
-        uses: ./  # Local testing
+      - name: Run Self-Healing Action
+        uses: willdafoe/openai.gpt.github-action@main
         with:
-          debug_only: true
-          openai_api_key: ${{ secrets.OPENAI_API_KEY }}
-          github_token: ${{ secrets.GITHUB_TOKEN }}
+          debug_only: false
+          enable_rollback: true
+          retry_count: 3
+          auto_merge: true
+          iac_tool: "auto"
+          openai_api_key: ${{ secrets.OPENAI_API_KEY }}  # ✅ Ensure this secret exists
+          github_token: ${{ secrets.GITHUB_TOKEN }}      # ✅ Use built-in GitHub token
