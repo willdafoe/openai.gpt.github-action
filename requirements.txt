@@ -1,2 +1,3 @@
-openai
-PyGithub
+openai>=1.0.0
+tenacity>=8.2.2
+PyGithub>=1.55
