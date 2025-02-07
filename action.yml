@@ -1,0 +1,41 @@
+name: "Self-Healing GitHub Action"
+description: "Automatically fixes failing code using ChatGPT."
+author: "Your Name"
+inputs:
+  debug_only:
+    description: "Set to true to only comment on PRs. False to auto-fix."
+    required: true
+    default: "true"
+  enable_rollback:
+    description: "Set to true to rollback if tests fail."
+    required: true
+    default: "true"
+  retry_count:
+    description: "Number of times to retry tests before rollback."
+    required: false
+    default: "2"
+  auto_merge:
+    description: "Set to true to automatically merge the PR if tests pass."
+    required: false
+    default: "false"
+  iac_tool:
+    description: "Specify which IaC tool is being used: terraform, pulumi, ansible, packer."
+    required: false
+    default: "auto"
+  language:
+    description: "Programming language of the project. Set to 'auto' for detection."
+    required: false
+    default: "auto"
+  openai_api_key:
+    description: "OpenAI API Key"
+    required: true
+  github_token:
+    description: "GitHub Token for committing and PRs"
+    required: true
+runs:
+  using: "docker"
+  image: "Dockerfile"
+  args:
+    - "python"
+    - "-m"
+    - "src.self_healing"  # Use module notation instead of direct file path
