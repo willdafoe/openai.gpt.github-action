@@ -1,8 +1,13 @@
 FROM python:3.10
 
+# Set the working directory inside the container
 WORKDIR /app
+
+# Copy all files into the container
 COPY . /app
 
-RUN pip install openai PyGithub
+# Install required dependencies
+RUN pip install --no-cache-dir -r requirements.txt
 
-CMD ["python", "src/self_healing.py"]
+# Set entry point to run Python script
+CMD ["python", "-m", "src.self_healing"]
