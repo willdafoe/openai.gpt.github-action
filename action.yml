@@ -6,6 +6,22 @@ inputs:
     description: "Set to true to only comment on PRs. False to auto-fix."
     required: true
     default: "true"
+  enable_rollback:
+    description: "Set to true to rollback if tests fail."
+    required: true
+    default: "true"
+  retry_count:
+    description: "Number of times to retry tests before rollback."
+    required: false
+    default: "2"
+  auto_merge:
+    description: "Set to true to automatically merge the PR if tests pass."
+    required: false
+    default: "false"
+  language:
+    description: "Programming language of the project. Set to 'auto' for detection."
+    required: false
+    default: "auto"
   openai_api_key:
     description: "OpenAI API Key"
     required: true

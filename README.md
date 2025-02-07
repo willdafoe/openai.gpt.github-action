@@ -1,23 +1,30 @@
 # Self-Healing GitHub Action
 
-This action captures errors from failed GitHub Actions steps, sends them to ChatGPT, and either comments fixes or applies them in a branch.
+Automatically detects and fixes failing code using ChatGPT. Supports:
+✅ Multi-language error detection  
+✅ Automatic dependency installation  
+✅ Test retries before rollback  
+✅ Attaches test failure logs for debugging  
+✅ Auto-merging successful fixes 🚀  
 
-## Features
-- Captures error messages from failing steps
-- Uses ChatGPT to suggest fixes
-- Supports `debug_only`: 
-  - `true`: Only comments on the PR with suggested fixes
-  - `false`: Auto-fixes the code and opens a PR to the `dev` branch
+---
 
-## Usage
+## **Usage**
 ```yaml
-- name: Self-Healing Action
-  uses: your-org/self-healing-action@v1
-  with:
-    debug_only: false
-    openai_api_key: ${{ secrets.OPENAI_API_KEY }}
-    github_token: ${{ secrets.GITHUB_TOKEN }}
-```
+jobs:
+  self_heal:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
 
-## License
-MIT
+      - name: Run Self-Healing Action
+        uses: your-org/self-healing-action@v1
+        with:
+          debug_only: false
+          enable_rollback: true
+          retry_count: 3
+          auto_merge: true  # Automatically merge PRs if tests pass
+          language: "auto"
+          openai_api_key: ${{ secrets.OPENAI_API_KEY }}
+          github_token: ${{ secrets.GITHUB_TOKEN }}
