@@ -3,7 +3,7 @@ FROM python:3.10
 # Set the working directory inside the container
 WORKDIR /app
 
-# Copy all files into the container
+# Copy all files from the repository into the container
 COPY . /app
 
 # Install required dependencies
