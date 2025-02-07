@@ -18,6 +18,10 @@ inputs:
     description: "Set to true to automatically merge the PR if tests pass."
     required: false
     default: "false"
+  iac_tool:
+    description: "Specify which IaC tool is being used: terraform, pulumi, ansible, packer."
+    required: false
+    default: "auto"
   language:
     description: "Programming language of the project. Set to 'auto' for detection."
     required: false

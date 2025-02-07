@@ -1,11 +1,11 @@
-# Self-Healing GitHub Action
+# Self-Healing GitHub Action (Now with IaC Support 🚀)
 
-Automatically detects and fixes failing code using ChatGPT. Supports:
-✅ Multi-language error detection  
-✅ Automatic dependency installation  
-✅ Test retries before rollback  
-✅ Attaches test failure logs for debugging  
-✅ Auto-merging successful fixes 🚀  
+Automatically detects and fixes failing Infrastructure as Code (IaC) configurations using ChatGPT. Supports:
+✅ **Terraform, Pulumi, Ansible, Packer**  
+✅ **Auto-detection of IaC tools**  
+✅ **Validation before merging fixes**  
+✅ **Test retries before rollback**  
+✅ **Auto-merging successful fixes**  
 
 ---
 
@@ -24,7 +24,7 @@ jobs:
           debug_only: false
           enable_rollback: true
           retry_count: 3
-          auto_merge: true  # Automatically merge PRs if tests pass
-          language: "auto"
+          auto_merge: true
+          iac_tool: "auto"
           openai_api_key: ${{ secrets.OPENAI_API_KEY }}
           github_token: ${{ secrets.GITHUB_TOKEN }}
