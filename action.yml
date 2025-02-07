@@ -35,3 +35,6 @@ inputs:
 runs:
   using: "docker"
   image: "Dockerfile"
+  args:
+    - "python"
+    - "/app/src/self_healing.py"
