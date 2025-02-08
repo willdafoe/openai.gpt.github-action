@@ -20,19 +20,24 @@ client = OpenAI(api_key=OPENAI_API_KEY, base_url=OPENAI_API_BASE)
 def get_chatgpt_fix(error_message):
     logging.info("Requesting fix from OpenAI...")
 
-    try:
-        response = client.chat.completions.create(
-            model="gpt-4",
-            messages=[
-                {"role": "system", "content": "You are an AI that fixes IaC errors efficiently."},
-                {"role": "user", "content": f"Fix this error:\n{error_message}"}
-            ]
-        )
-        return response.choices[0].message.content
+    for model in ["gpt-4", "gpt-3.5-turbo"]:  # 🔥 Try GPT-4 first, then fall back to GPT-3.5
+        try:
+            response = client.chat.completions.create(
+                model=model,
+                messages=[
+                    {"role": "system", "content": "You are an AI that fixes IaC errors efficiently."},
+                    {"role": "user", "content": f"Fix this error:\n{error_message}"}
+                ]
+            )
+            return response.choices[0].message.content
 
-    except Exception as e:
-        logging.error(f"❌ OpenAI API Error: {e}")
-        return None
+        except Exception as e:
+            logging.error(f"❌ OpenAI API Error with {model}: {e}")
+            if "model_not_found" in str(e):
+                continue  # Try the next model if the current one is unavailable
+
+    logging.error("❌ No available OpenAI models could be used.")
+    return None
 
 # Function to detect IaC tool
 def detect_iac_tool():
