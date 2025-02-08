@@ -5,6 +5,7 @@ on:
     branches:
       - main
       - dev
+  pull_request:
 
 env:
   OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
@@ -13,16 +14,74 @@ env:
 jobs:
   test_self_healing:
     runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        iac_tool: [terraform, pulumi, ansible, packer]
+
     steps:
       - name: Checkout this repository
         uses: actions/checkout@v4
 
-      - name: Run Self-Healing Action
+      # ✅ Setup Terraform
+      - name: Setup Terraform
+        if: matrix.iac_tool == 'terraform'
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: 1.6.0
+
+      # ✅ Setup Pulumi
+      - name: Setup Pulumi
+        if: matrix.iac_tool == 'pulumi'
+        uses: pulumi/actions@v5
+        with:
+          pulumi-version: latest
+
+      # ✅ Install Ansible (No Official GitHub Action Available)
+      - name: Install Ansible
+        if: matrix.iac_tool == 'ansible'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y ansible
+
+      # ✅ Setup Packer
+      - name: Setup Packer
+        if: matrix.iac_tool == 'packer'
+        uses: hashicorp/setup-packer@v2
+        with:
+          packer_version: latest
+
+      # ✅ Create Example IaC Files for Testing
+      - name: Generate Test Files for ${{ matrix.iac_tool }}
+        run: |
+          case "${{ matrix.iac_tool }}" in
+            terraform)
+              echo 'resource "null_resource" "test" {}' > main.tf
+              mkdir .terraform
+              ;;
+            pulumi)
+              echo 'name: pulumi-test' > Pulumi.yaml
+              echo 'runtime: python' >> Pulumi.yaml
+              ;;
+            ansible)
+              echo '[defaults]' > ansible.cfg
+              echo 'inventory = ./inventory' >> ansible.cfg
+              echo 'all:\n  hosts:\n    localhost:' > inventory
+              echo '- hosts: localhost\n  tasks:\n    - name: Ping\n      ping:' > playbook.yml
+              ;;
+            packer)
+              echo '{ "builders": [{ "type": "null" }] }' > packer.json
+              ;;
+          esac
+
+      # ✅ Run Self-Healing Action for the Specific IaC Tool
+      - name: Run Self-Healing Action for ${{ matrix.iac_tool }}
         uses: willdafoe/openai.gpt.github-action@main
         with:
           debug_only: false
           enable_rollback: true
           retry_count: 3
           auto_merge: true
-          openai_api_key: ${{ secrets.OPENAI_API_KEY }}  # ✅ Ensure this exists
-          github_token: ${{ secrets.GITHUB_TOKEN }}      # ✅ Use built-in GitHub token
+          iac_tool: "${{ matrix.iac_tool }}"
+          openai_api_key: ${{ env.OPENAI_API_KEY }}
+          github_token: ${{ env.GITHUB_TOKEN }}
