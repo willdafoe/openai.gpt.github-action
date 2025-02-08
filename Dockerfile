@@ -23,14 +23,11 @@ FROM base AS final
 
 # Copy binaries from Terraform, Pulumi, and Packer layers
 COPY --from=terraform /bin/terraform /usr/local/bin/terraform
-COPY --from=pulumi /usr/bin/pulumi /usr/local/bin/pu
+COPY --from=pulumi /usr/bin/pulumi /usr/local/bin/pulumi
 COPY --from=packer /bin/packer /usr/local/bin/packer
 
 # Copy the entire repository into the final image
 COPY . /app
-
-# Ensure paths are correctly set for Pulumi
-ENV PATH="/root/.pulumi/bin:$PATH"
 
 # Set entry point to run the self-healing script
 CMD ["python", "/app/src/self_healing.py"]
