@@ -18,14 +18,14 @@ client = OpenAI(api_key=OPENAI_API_KEY, base_url=OPENAI_API_BASE)
 # Function to retry OpenAI requests on rate limits
 @retry(stop=stop_after_attempt(3), wait=wait_exponential(multiplier=1, min=2, max=10))
 def get_chatgpt_fix(error_message):
-    logging.info("Requesting fix from OpenAI...")
+    logging.info("🤖 Requesting AI fix from OpenAI...")
 
     for model in ["gpt-4", "gpt-3.5-turbo"]:  # 🔥 Try GPT-4 first, then fall back to GPT-3.5
         try:
             response = client.chat.completions.create(
                 model=model,
                 messages=[
-                    {"role": "system", "content": "You are an AI that fixes IaC errors efficiently."},
+                    {"role": "system", "content": "You are an AI that fixes Infrastructure-as-Code (IaC) errors efficiently."},
                     {"role": "user", "content": f"Fix this error:\n{error_message}"}
                 ]
             )
@@ -51,10 +51,42 @@ def detect_iac_tool():
         return "packer"
     return "unknown"
 
+# Function to format IaC code
+def format_iac(iac_tool):
+    format_commands = {
+        "terraform": "terraform fmt -recursive -write=true",
+        "packer": "packer fmt -write=true"
+    }
+
+    if iac_tool in format_commands:
+        logging.info(f"🧹 Formatting {iac_tool} code...")
+        result = subprocess.run(format_commands[iac_tool], shell=True, capture_output=True, text=True)
+        
+        if result.returncode == 0:
+            logging.info(f"✅ {iac_tool} code formatting complete.")
+        else:
+            logging.warning(f"⚠️ {iac_tool} formatting failed:\n{result.stderr}")
+
+# Function to clean up and initialize IaC projects
+def initialize_iac(iac_tool):
+    init_commands = {
+        "terraform": "terraform init -upgrade",
+        "pulumi": "pulumi stack init || pulumi stack select default",
+    }
+
+    if iac_tool in init_commands:
+        logging.info(f"🔄 Initializing {iac_tool} project...")
+        result = subprocess.run(init_commands[iac_tool], shell=True, capture_output=True, text=True)
+
+        if result.returncode == 0:
+            logging.info(f"✅ {iac_tool} initialization successful.")
+        else:
+            logging.error(f"❌ {iac_tool} initialization failed:\n{result.stderr}")
+
 # Function to validate IaC configurations
 def validate_iac(iac_tool):
     validation_commands = {
-        "terraform": "terraform fmt -check && terraform validate",
+        "terraform": "terraform validate",
         "pulumi": "pulumi preview",
         "ansible": "ansible-lint && ansible-playbook --syntax-check playbook.yml",
         "packer": "packer validate .",
@@ -63,7 +95,7 @@ def validate_iac(iac_tool):
     if iac_tool in validation_commands:
         logging.info(f"🔍 Running validation checks for {iac_tool}...")
         result = subprocess.run(validation_commands[iac_tool], shell=True, capture_output=True, text=True)
-        
+
         if result.returncode == 0:
             logging.info(f"✅ {iac_tool} validation passed.")
             return True
@@ -98,14 +130,20 @@ if IAC_TOOL == "unknown":
     logging.warning("⚠️ No supported IaC tool detected.")
     exit(1)
 
-# Run validation checks
+# 1️⃣ Format the code before proceeding
+format_iac(IAC_TOOL)
+
+# 2️⃣ Clean up and initialize the project
+initialize_iac(IAC_TOOL)
+
+# 3️⃣ Run validation checks
 validation_result = validate_iac(IAC_TOOL)
 
 if validation_result is True:
-    # If validation passes, proceed with deployment
+    # 4️⃣ If validation passes, proceed with deployment
     deploy_iac(IAC_TOOL)
 elif validation_result:
-    # If validation fails, request AI-generated fixes
+    # 5️⃣ If validation fails, request AI-generated fixes
     fix_suggestion = get_chatgpt_fix(validation_result)
     if fix_suggestion:
         logging.info(f"🤖 AI Suggested Fix:\n{fix_suggestion}")

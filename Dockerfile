@@ -23,7 +23,7 @@ FROM base AS final
 
 # Copy binaries from Terraform, Pulumi, and Packer layers
 COPY --from=terraform /bin/terraform /usr/local/bin/terraform
-COPY --from=pulumi /usr/bin/pulumi /usr/local/bin/pulumi
+COPY --from=pulumi /usr/bin/pulumi /usr/local/bin/pu
 COPY --from=packer /bin/packer /usr/local/bin/packer
 
 # Copy the entire repository into the final image
